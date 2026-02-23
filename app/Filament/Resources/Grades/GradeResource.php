@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Grades;
 use App\Filament\Resources\Grades\Pages\CreateGrade;
 use App\Filament\Resources\Grades\Pages\EditGrade;
 use App\Filament\Resources\Grades\Pages\ListGrades;
+use App\Filament\Resources\Grades\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\Grades\Schemas\GradeForm;
 use App\Filament\Resources\Grades\Tables\GradesTable;
 use App\Models\Grade;
@@ -39,7 +40,7 @@ class GradeResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+             UsersRelationManager::class,
         ];
     }
 

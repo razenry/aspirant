@@ -26,6 +26,22 @@ class GradesTable
                     ->searchable(),
                 TextColumn::make('level')
                     ->searchable(),
+                TextColumn::make('students_count')
+                    ->label('Students')
+                    ->counts('students')
+                    ->badge()
+                    ->color(function ($state) {
+                        if ($state < 20) {
+                            return 'warning';
+                        }
+
+                        if ($state <= 30) {
+                            return 'success';
+                        }
+
+                        return 'danger';
+                    })
+                    ->sortable(),
                 TextColumn::make('academic_year')
                     ->searchable(),
                 TextColumn::make('created_at')

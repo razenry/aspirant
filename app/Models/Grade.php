@@ -15,4 +15,9 @@ class Grade extends Model
         'level',
         'academic_year'
     ];
+
+    public function students()
+    {
+        return $this->hasMany(User::class);
+    }
 }
