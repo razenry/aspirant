@@ -7,12 +7,14 @@ use App\Models\Grade;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Components\Section;
+// use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class UsersRelationManager extends RelationManager
 {
@@ -20,11 +22,17 @@ class UsersRelationManager extends RelationManager
 
     protected static ?string $relatedResource = UserResource::class;
 
-    protected static ?string $title = 'Students';
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        $ownerRecord->loadCount('students');
+
+        return 'Students (' . $ownerRecord->students_count . ')';
+    }
 
     public function table(Table $table): Table
     {
         return $table
+
             ->columns([
                 TextColumn::make('name')
                     ->label('Full Name')
@@ -42,6 +50,7 @@ class UsersRelationManager extends RelationManager
             ])
 
             ->headerActions([
+
                 Action::make('assignStudents')
                     ->label('Add Students')
                     ->icon('heroicon-o-user-plus')
@@ -61,6 +70,19 @@ class UsersRelationManager extends RelationManager
                             ->helperText('If selected, all students from that class will be moved.')
                             ->reactive(),
 
+                        Placeholder::make('class_student_count')
+                            ->label('Class Student Count')
+                            ->content(function (Get $get) {
+                                if (!$get('source_grade_id')) {
+                                    return null;
+                                }
+
+                                $count = User::where('grade_id', $get('source_grade_id'))->count();
+
+                                return "This class contains {$count} students.";
+                            })
+                            ->visible(fn(Get $get) => filled($get('source_grade_id'))),
+
                         Select::make('students')
                             ->label('Or Select Individual Students')
                             ->multiple()
@@ -71,6 +93,21 @@ class UsersRelationManager extends RelationManager
                                 return User::whereNull('grade_id')
                                     ->orderBy('name')
                                     ->pluck('name', 'id');
+                            })
+                            ->reactive()
+                            ->visible(fn(Get $get) => !$get('source_grade_id')),
+
+                        Placeholder::make('selected_count')
+                            ->label('Selected Students')
+                            ->content(function (Get $get) {
+                                $selected = $get('students') ?? [];
+                                $count = count($selected);
+
+                                if ($count === 0) {
+                                    return 'No students selected.';
+                                }
+
+                                return "{$count} students selected.";
                             })
                             ->visible(fn(Get $get) => !$get('source_grade_id')),
                     ])
