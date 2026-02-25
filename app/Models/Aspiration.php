@@ -21,5 +21,6 @@ class Aspiration extends Model
 
     protected $casts = [
         'status' => Status::class,
+        'photos' => 'array',
     ];
 }

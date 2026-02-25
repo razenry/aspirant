@@ -56,7 +56,10 @@ class GradesTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
             ])
+            ->paginated([5 ,10, 25, 50, 100])
+            ->defaultPaginationPageOption(10)
             ->filters([
                 TrashedFilter::make(),
                 SelectFilter::make('level')
@@ -68,7 +71,6 @@ class GradesTable
                     ])
             ])
             ->recordActions([
-                ViewAction::make()->color('info'),
                 EditAction::make(),
                 DeleteAction::make(),
                 RestoreAction::make()->color('success'),

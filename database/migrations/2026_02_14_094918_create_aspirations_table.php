@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('location', 30);
 
             $table->text('content');
-            $table->string('photo');
+            $table->json('photo');
 
             $table->enum('status', ['accepted', 'process', 'finished', 'rejected']);
 

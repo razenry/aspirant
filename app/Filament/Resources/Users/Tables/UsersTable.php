@@ -2,13 +2,17 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Filament\Exports\UserExporter;
+use App\Filament\Imports\UserImporter;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\ExportAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\ImportAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
@@ -23,6 +27,12 @@ class UsersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ImportAction::make()
+                    ->importer(UserImporter::class),
+                ExportAction::make()
+                    ->exporter(UserExporter::class)
+            ])
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
@@ -97,7 +107,7 @@ class UsersTable
                         ->action(function ($record, array $data) {
                             $record->syncRoles($data['roles']);
                         })
-                        ->successNotificationTitle('Role berhasil di-assign'),
+                        ->successNotificationTitle('Role assigned successfully'),
                     EditAction::make(),
                     DeleteAction::make(),
                 ])
