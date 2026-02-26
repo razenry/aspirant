@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Users\Tables;
 
 use App\Filament\Exports\UserExporter;
 use App\Filament\Imports\UserImporter;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -11,16 +12,22 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ExportAction;
+use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\ImportAction;
+use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use STS\FilamentImpersonate\Actions\Impersonate;
+use Filament\Notifications\Notification;
+use Filament\Support\Colors\Color;
+use Illuminate\Database\Eloquent\Collection;
 
 class UsersTable
 {
@@ -29,9 +36,47 @@ class UsersTable
         return $table
             ->headerActions([
                 ImportAction::make()
-                    ->importer(UserImporter::class),
+                    ->color(Color::Green)
+                    ->importer(UserImporter::class)
+                    ->after(function (Collection $records) {
+
+                        $importedNames = $records
+                            ->pluck('name')
+                            ->values()
+                            ->map(fn($name, $index) => ($index + 1) . '. ' . $name)
+                            ->implode("\n");
+
+                        $admins = User::role(['admin', 'super_admin'])->get();
+
+                        Notification::make()
+                            ->title('Users Imported Successfully')
+                            ->body(
+                                "The following users have been imported by " . Auth::user()->name . ":\n\n" . $importedNames
+                            )
+                            ->success()
+                            ->sendToDatabase($admins);
+                    }),
                 ExportAction::make()
+                    ->color(Color::Gray)
                     ->exporter(UserExporter::class)
+                    ->after(function (Collection $records) {
+
+                        $exportedNames = $records
+                            ->pluck('name')
+                            ->values()
+                            ->map(fn($name, $index) => ($index + 1) . '. ' . $name)
+                            ->implode("\n");
+
+                        $admins = User::role(['admin', 'super_admin'])->get();
+
+                        Notification::make()
+                            ->title('Users Exported Successfully')
+                            ->body(
+                                "The following users have been exported by " . Auth::user()->name . ":\n\n" . $exportedNames
+                            )
+                            ->success()
+                            ->sendToDatabase($admins);
+                    }), 
             ])
             ->columns([
                 TextColumn::make('name')
@@ -109,14 +154,108 @@ class UsersTable
                         })
                         ->successNotificationTitle('Role assigned successfully'),
                     EditAction::make(),
-                    DeleteAction::make(),
+                    ForceDeleteAction::make()->after(function ($record) {
+
+                        $deletedName = $record->name;
+
+                        $admins = User::role(['admin', 'super_admin'])->get();
+
+                        Notification::make()
+                            ->title('User Permanently Deleted')
+                            ->body('The user "' . $deletedName . '" has been permanently deleted by ' . Auth::user()->name . '.')
+                            ->danger()
+                            ->sendToDatabase($admins);
+                    }),
+                    RestoreAction::make()
+                        ->color('success')
+                        ->after(function ($record) {
+
+                            $restoredName = $record->name;
+
+                            $admins = User::role(['admin', 'super_admin'])->get();
+
+                            Notification::make()
+                                ->title('User Restored Successfully')
+                                ->body('The user "' . $restoredName . '" has been restored by ' . Auth::user()->name . '.')
+                                ->success()
+                                ->sendToDatabase($admins);
+                        }),
+                    DeleteAction::make()
+                        ->after(function ($record) {
+
+                            $deletedName = $record->name;
+
+                            $admins = User::role(['admin', 'super_admin'])->get();
+
+                            Notification::make()
+                                ->title('User Deleted Successfully')
+                                ->body('The user "' . $deletedName . '" has been deleted by ' . Auth::user()->name . '.')
+                                ->danger()
+                                ->sendToDatabase($admins);
+                        }),
                 ])
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->after(function (Collection $records) {
+
+                            $deletedNames = $records
+                                ->pluck('name')
+                                ->values()
+                                ->map(fn($name, $index) => ($index + 1) . '. ' . $name)
+                                ->implode("\n");
+
+                            $admins = User::role(['admin', 'super_admin'])->get();
+
+                            Notification::make()
+                                ->title('Users Deleted Successfully')
+                                ->body(
+                                    "The following users have been deleted by " . Auth::user()->name . ":\n\n" . $deletedNames
+                                )
+                                ->danger()
+                                ->sendToDatabase($admins);
+                        }),
+                    ForceDeleteBulkAction::make()
+                        ->after(function (Collection $records) {
+
+                            $deletedNames = $records
+                                ->pluck('name')
+                                ->values()
+                                ->map(fn($name, $index) => ($index + 1) . '. ' . $name)
+                                ->implode("\n");
+
+                            $admins = User::role(['admin', 'super_admin'])->get();
+
+                            Notification::make()
+                                ->title('Users Permanently Deleted')
+                                ->body(
+                                    "The following users have been permanently deleted by " . Auth::user()->name . ":\n\n" . $deletedNames
+                                )
+                                ->danger()
+                                ->sendToDatabase($admins);
+                        }),
+
+                    RestoreBulkAction::make()
+                        ->color('success')
+                        ->after(function (Collection $records) {
+
+                            $restoredNames = $records
+                                ->pluck('name')
+                                ->values()
+                                ->map(fn($name, $index) => ($index + 1) . '. ' . $name)
+                                ->implode("\n");
+
+                            $admins = User::role(['admin', 'super_admin'])->get();
+
+                            Notification::make()
+                                ->title('Users Restored Successfully')
+                                ->body(
+                                    "The following users have been restored by " . Auth::user()->name . ":\n\n" . $restoredNames
+                                )
+                                ->success()
+                                ->sendToDatabase($admins);
+                        }),
                 ]),
             ]);
     }

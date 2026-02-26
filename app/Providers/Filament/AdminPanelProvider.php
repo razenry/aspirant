@@ -12,6 +12,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Hammadzafar05\MobileBottomNav\MobileBottomNav;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -30,12 +31,18 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->globalSearch(false)
-            ->brandName('Aspirant')
-            ->brandLogo(asset('aspirant_new_logo.png'))
+            ->brandName('Dapodik Support')
+            // ->brandLogo(asset('aspirant_new_logo.png'))
             ->brandLogoHeight('3rem')
             ->favicon(asset('favicon.ico'))
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => '#2563EB',
+                'success' => '#16A34A',
+                'danger'  => '#E11D48',
+                'warning' => '#F59E0B',
+                'info'    => '#06B6D4',
+                'gray'    => Color::Zinc[100],
+                'dark'    => '#0F172A',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -48,7 +55,7 @@ class AdminPanelProvider extends PanelProvider
                 // AccountWidget::class,
             ])
             ->databaseNotifications()
-            ->databaseNotificationsPolling('20s')
+            ->databaseNotificationsPolling('10s')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -63,6 +70,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentShieldPlugin::make()->navigationGroup('Security'),
                 FilamentApexChartsPlugin::make(),
+                MobileBottomNav::make()->fromNavigation(5),
             ])
             ->authMiddleware([
                 Authenticate::class,
