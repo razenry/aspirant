@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UploadFile extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'pengirim_id',
         'staff_id',
@@ -20,18 +23,17 @@ class UploadFile extends Model
 
     protected $casts = [
         'jenis_file' => \App\Enums\FileType::class,
-        'status' => \App\Enums\Status::class,
+        'status' => \App\Enums\FileStatus::class,
     ];
 
-    // Relasi dengan User (pengirim)
-    public function sender()
+    public function pengirim()
     {
         return $this->belongsTo(User::class, 'pengirim_id');
     }
 
-    // Relasi dengan User (staff yang memverifikasi)
     public function staff()
     {
         return $this->belongsTo(User::class, 'staff_id');
     }
+
 }

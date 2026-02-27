@@ -31,6 +31,12 @@ class User extends Authenticatable
         return $this->belongsTo(Grade::class);
     }
 
+
+
+    public function uploadFiles()
+    {
+        return $this->hasMany(UploadFile::class, 'pengirim_id');
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

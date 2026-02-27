@@ -46,7 +46,8 @@ return new class extends Migration
             ])->default('menunggu');
 
             $table->text('catatan')->nullable(); // Alasan jika ditolak
-
+            
+            $table->softDeletes();
             $table->timestamps();
         });
     }
