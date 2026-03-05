@@ -5,10 +5,10 @@ namespace App\Filament\Resources\Users\RelationManagers;
 use App\Enums\FileStatus;
 use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 
 class UploadFilesRelationManager extends RelationManager
@@ -62,32 +62,50 @@ class UploadFilesRelationManager extends RelationManager
                     ->label('Setujui')
                     ->icon('heroicon-o-check')
                     ->color('success')
-                    ->visible(
-                        fn($record) =>
-                        $record->status !== FileStatus::Accepted
-                    )
                     ->requiresConfirmation()
+                    ->visible(fn($record) => $record->status !== FileStatus::Accepted)
                     ->action(function ($record) {
+
                         $record->update([
                             'status' => FileStatus::Accepted,
                             'staff_id' => Auth::id(),
                         ]);
+
+                        Notification::make()
+                            ->title('Dokumen Disetujui')
+                            ->body(
+                                "Halo {$record->pengirim->name},\n\n" .
+                                    "Dokumen *{$record->jenis_file->label()}* yang kamu upload telah disetujui oleh " .
+                                    Auth::user()->name . ".\n\n" .
+                                    "Silakan cek dashboard untuk detail lebih lanjut."
+                            )
+                            ->success()
+                            ->sendToDatabase($record->pengirim);
                     }),
 
                 Action::make('reject')
                     ->label('Tolak')
                     ->icon('heroicon-o-x-mark')
                     ->color('danger')
-                    ->visible(
-                        fn($record) =>
-                        $record->status !== FileStatus::Rejected
-                    )
                     ->requiresConfirmation()
+                    ->visible(fn($record) => $record->status !== FileStatus::Rejected)
                     ->action(function ($record) {
+
                         $record->update([
                             'status' => FileStatus::Rejected,
                             'staff_id' => Auth::id(),
                         ]);
+
+                        Notification::make()
+                            ->title('Dokumen Ditolak')
+                            ->body(
+                                "Halo {$record->pengirim->name},\n\n" .
+                                    "Dokumen *{$record->jenis_file->label()}* yang kamu upload ditolak oleh " .
+                                    Auth::user()->name . ".\n\n" .
+                                    "Silakan periksa catatan dan upload ulang dokumen yang benar."
+                            )
+                            ->danger()
+                            ->sendToDatabase($record->pengirim);
                     }),
 
                 Action::make('download')

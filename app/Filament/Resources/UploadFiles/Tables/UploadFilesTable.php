@@ -33,7 +33,6 @@ class UploadFilesTable
 
                 TextColumn::make('pengirim.name')
                     ->label('Siswa')
-                    ->icon('heroicon-o-user')
                     ->searchable()
                     ->sortable()
                     ->weight('medium'),
@@ -54,6 +53,7 @@ class UploadFilesTable
                     ->label('Nama File')
                     ->limit(30)
                     ->tooltip(fn($record) => $record->nama_file)
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
 
                 TextColumn::make('status')
