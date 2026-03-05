@@ -2,14 +2,16 @@
 
 namespace App\Filament\Resources\UploadFiles\Schemas;
 
+use App\Enums\FileStatus;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class UploadFileForm
 {
@@ -17,6 +19,7 @@ class UploadFileForm
     {
         return $schema
             ->components([
+
 
                 Section::make('Upload Dokumen')
                     ->description('Silakan unggah dokumen sesuai jenis yang diminta. Pastikan file terlihat jelas dan tidak buram.')
@@ -34,6 +37,7 @@ class UploadFileForm
                             ->helperText('Pilih jenis dokumen yang ingin kamu upload.')
                             ->required()
                             ->searchable()
+                            ->native(false)
                             ->disabled(fn() => Auth::user()?->hasAnyRole(['admin', 'super_admin'])),
 
                         FileUpload::make('path_file')
@@ -53,9 +57,7 @@ class UploadFileForm
                             ->downloadable()
                             ->required()
                             ->afterStateUpdated(function ($state, callable $set) {
-
-                                if ($state instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
-
+                                if ($state instanceof TemporaryUploadedFile) {
                                     $set('nama_file', $state->getClientOriginalName());
                                     $set('tipe_mime', $state->getMimeType());
                                     $set('ukuran_file', $state->getSize());
@@ -64,21 +66,18 @@ class UploadFileForm
                             ->disabled(fn() => Auth::user()?->hasAnyRole(['admin', 'super_admin'])),
 
                         Hidden::make('nama_file'),
-
                         Hidden::make('tipe_mime'),
-
                         Hidden::make('ukuran_file'),
 
                         Hidden::make('pengirim_id')
                             ->default(fn() => Auth::id()),
 
                         Hidden::make('status')
-                            ->default('menunggu'),
+                            ->default(FileStatus::Waiting->value),
 
                     ])
                     ->columns(1)
                     ->collapsible(),
-
 
                 Section::make('Status Verifikasi')
                     ->description('Bagian ini hanya dapat diakses oleh staff untuk melakukan verifikasi dokumen.')
@@ -88,23 +87,36 @@ class UploadFileForm
                         Select::make('status')
                             ->label('Status Dokumen')
                             ->options([
-                                'menunggu' => 'Menunggu',
-                                'disetujui' => 'Disetujui',
-                                'ditolak' => 'Ditolak',
+                                FileStatus::Waiting->value => 'Menunggu',
+                                FileStatus::Accepted->value => 'Disetujui',
+                                FileStatus::Rejected->value => 'Ditolak',
                             ])
                             ->required()
-                            ->live()
                             ->native(false)
+                            ->live()
                             ->visible(fn() => Auth::user()?->hasAnyRole(['admin', 'super_admin'])),
 
                         Textarea::make('catatan')
                             ->label('Catatan Penolakan')
                             ->placeholder('Tuliskan alasan penolakan agar siswa dapat memperbaiki dokumen...')
                             ->rows(3)
+                            ->required(
+                                fn($get) =>
+                                $get('status') === FileStatus::Rejected->value
+                            )
                             ->visible(
                                 fn($get) =>
                                 Auth::user()?->hasAnyRole(['admin', 'super_admin'])
-                                    && $get('status') === 'ditolak'
+                                    && $get('status') === FileStatus::Rejected->value
+                            ),
+
+                        Placeholder::make('info_status')
+                            ->label('')
+                            ->content('Jika dokumen ditolak, wajib mengisi catatan agar siswa mengetahui alasan perbaikan.')
+                            ->visible(
+                                fn($get) =>
+                                Auth::user()?->hasAnyRole(['admin', 'super_admin'])
+                                    && $get('status') === FileStatus::Rejected->value
                             ),
 
                     ])

@@ -62,7 +62,7 @@ class PenerimaPipResource extends Resource
         return [
             'index' => ListPenerimaPips::route('/'),
             // 'create' => CreatePenerimaPip::route('/create'),
-            'edit' => EditPenerimaPip::route('/{record}/edit'),
+            'edit' => EditPenerimaPip::route('/{record}/detail'),
         ];
     }
 
