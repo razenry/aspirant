@@ -35,6 +35,7 @@ class UploadFilesTable
                     ->label('Siswa')
                     ->searchable()
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->weight('medium'),
 
                 TextColumn::make('jenis_file')
@@ -53,7 +54,6 @@ class UploadFilesTable
                     ->label('Nama File')
                     ->limit(30)
                     ->tooltip(fn($record) => $record->nama_file)
-                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
 
                 TextColumn::make('status')
