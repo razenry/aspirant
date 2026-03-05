@@ -22,7 +22,7 @@ class UploadFilesRelationManager extends RelationManager
     {
         return $table
             ->headerActions([
-                CreateAction::make(),
+                // CreateAction::make(),
             ])
             ->columns([
                 TextColumn::make('jenis_file')->label('Jenis File'),

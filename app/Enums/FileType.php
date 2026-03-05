@@ -2,12 +2,12 @@
 
 namespace App\Enums;
 
-enum FileType: String
+enum FileType: string
 {
     case HPT = 'halaman_pertama_tabungan';
     case MTB = 'mutasi_terakhir_tabungan';
     case BTA = 'bukti_tarik_atm';
-    case IS = 'identitas_siswa';
+    case IS  = 'identitas_siswa';
 
     public function label(): string
     {
@@ -15,7 +15,7 @@ enum FileType: String
             self::HPT => 'Halaman Pertama Tabungan',
             self::MTB => 'Mutasi Terakhir Tabungan',
             self::BTA => 'Bukti Tarik ATM',
-            self::IS => 'Identitas Siswa',
+            self::IS  => 'Identitas Siswa',
         };
     }
 }

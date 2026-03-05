@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UploadFiles\Tables;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -101,28 +102,31 @@ class UploadFilesTable
             ])
 
             ->recordActions([
-                Action::make('download')
-                    ->label('Download File')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->color('success')
-                    ->action(function ($record) {
-                        return response()->download(
-                            storage_path('app/public/' . $record->path_file),
-                            $record->nama_file
-                        );
-                    }),
+                ActionGroup::make([
+                    Action::make('download')
+                        ->label('Download File')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function ($record) {
+                            return response()->download(
+                                storage_path('app/public/' . $record->path_file),
+                                $record->nama_file
+                            );
+                        }),
 
-                ViewAction::make()->color('info'),
+                    ViewAction::make()->color('info'),
 
-                EditAction::make()->color('warning'),
+                    EditAction::make()->color('warning'),
 
-                DeleteAction::make(),
+                    DeleteAction::make(),
 
-                RestoreAction::make()
-                    ->visible(fn($record) => $record->trashed()),
+                    RestoreAction::make()
+                        ->visible(fn($record) => $record->trashed()),
 
-                ForceDeleteAction::make()
-                    ->visible(fn($record) => $record->trashed()),
+                    ForceDeleteAction::make()
+                        ->visible(fn($record) => $record->trashed()),
+                ])
+
 
             ])
 

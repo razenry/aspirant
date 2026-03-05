@@ -24,9 +24,9 @@ class PenerimaPipResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Penerima PIP';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
-    protected static ?string $navigationLabel = 'Penerima PIP';
+    protected static ?string $navigationLabel = 'Berkas Penerima PIP';
 
     protected static string | UnitEnum | null $navigationGroup = 'PIP';
 
@@ -37,7 +37,7 @@ class PenerimaPipResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->hasAnyRole(['admin', 'super_admin']);
+        return Auth::user()?->hasAnyRole(['admin', 'super_admin', 'pengurus_pip']);
     }
 
     public static function form(Schema $schema): Schema
@@ -61,7 +61,7 @@ class PenerimaPipResource extends Resource
     {
         return [
             'index' => ListPenerimaPips::route('/'),
-            'create' => CreatePenerimaPip::route('/create'),
+            // 'create' => CreatePenerimaPip::route('/create'),
             'edit' => EditPenerimaPip::route('/{record}/edit'),
         ];
     }

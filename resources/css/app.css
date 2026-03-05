@@ -19,3 +19,66 @@
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
 }
+@plugin "flyonui/theme" {
+    name: "manga";
+    default: true;
+    prefersdark: false;
+    color-scheme: light;
+
+    /* Base - Manga Hitam Putih */
+    --color-base-100: oklch(100% 0 0); /* putih bersih */
+    --color-base-200: oklch(95% 0 0); /* abu terang */
+    --color-base-300: oklch(88% 0 0); /* abu panel */
+    --color-base-content: oklch(15% 0 0); /* hitam pekat */
+
+    /* Primary - Dramatic Black */
+    --color-primary: oklch(20% 0 0);
+    --color-primary-content: oklch(98% 0 0);
+
+    /* Secondary - Grey Ink */
+    --color-secondary: oklch(40% 0 0);
+
+    /* Accent - Manga Red (efek slash / important) */
+    --color-accent: oklch(62% 0.24 29);
+    --color-accent-content: oklch(98% 0 0);
+
+    /* Neutral */
+    --color-neutral: oklch(25% 0 0);
+    --color-neutral-content: oklch(98% 0 0);
+
+    /* State Colors - lebih bold */
+    --color-info: oklch(70% 0.15 230);
+    --color-success: oklch(70% 0.18 150);
+    --color-warning: oklch(78% 0.2 70);
+    --color-error: oklch(60% 0.25 25);
+
+    /* Border Radius - Tajam seperti panel */
+    --radius-selector: 0.5rem;
+    --radius-field: 0.25rem;
+    --radius-box: 0.5rem;
+
+    /* Border Size - Tebal ala panel manga */
+    --border: 2px;
+
+    /* Effects - Shadow keras */
+    --depth: 0;
+    --noise: 0;
+}
+
+@layer components {
+
+    .manga-card {
+        @apply border-2 border-black bg-white shadow-[4px_4px_0px_#000];
+    }
+
+    .manga-btn {
+        @apply border-2 border-black bg-white text-black font-bold uppercase
+               shadow-[3px_3px_0px_#000] hover:translate-x-1 hover:translate-y-1
+               hover:shadow-none transition-all duration-100;
+    }
+
+    .manga-title {
+        @apply font-extrabold uppercase tracking-wider text-black;
+    }
+
+}

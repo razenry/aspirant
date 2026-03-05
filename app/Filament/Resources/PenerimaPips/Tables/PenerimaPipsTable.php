@@ -14,17 +14,15 @@ class PenerimaPipsTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Nama'),
+                TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 TextColumn::make('email'),
                 TextColumn::make('upload_files_count')
                     ->counts('uploadFiles')
                     ->label('Jumlah File'),
             ])
             ->filters([
-                //
             ])
             ->recordActions([
-                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

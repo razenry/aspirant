@@ -22,11 +22,16 @@ class UploadFileResource extends Resource
 {
     protected static ?string $model = UploadFile::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocument;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentArrowUp;
 
     protected static ?string $recordTitleAttribute = 'Upload File';
 
     protected static string | UnitEnum | null $navigationGroup = 'PIP';
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->hasAnyRole(['penerima_pip']);
+    }
 
     public static function form(Schema $schema): Schema
     {
